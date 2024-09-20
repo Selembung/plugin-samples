@@ -1,0 +1,21 @@
+{
+    "name": "Design System Validator",
+    "id": "1419016810233621470",
+    "main": "main.js",
+    "ui": "ui.html",
+    "networkAccess": {
+        "allowedDomains": [
+            "https://www.figma.com"
+        ]
+    },
+    "documentAccess": "dynamic-page",
+    "menu": [
+      {
+        "name": "Validate Design",
+        "command": "validate-design"
+      }
+    ],
+    "api": "1.0.0",
+    "editorType": ["figma"],
+    "permissions": ["currentuser"]
+  }

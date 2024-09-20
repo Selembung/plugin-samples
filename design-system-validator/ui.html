@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
+        .toast { 
+            border: 1px solid #BC1C21; 
+            background-color: rgba(188, 28, 33, 0.1); 
+            border-left-width: 6px; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
+            margin-bottom: 1rem; 
+            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+        }
+        .text-green { color: #28A745; } /* Green color class */
+        .text-red { color: #BC1C21; } /* Red color class */
+        .icon { width: 64px; height: 64px; margin-right: 1rem; }
+        .title-large {
+        font-size: 1rem; /* Adjust size as needed */
+    }
+    </style>
+</head>
+<body>
+    <div id="notification" class="hidden toast">
+        <div>
+            <div id="status-icon-container"></div> <!-- Placeholder for icons -->
+            <h5 id="notification-title" class="text-base font-semibold text-[#BC1C21] title-large"></h5>
+            <ul id="issue-list" class="list-inside list-disc"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Listen for messages from the main plugin code
+        window.onmessage = (event) => {
+            const { type, issues, notification } = event.data.pluginMessage;
+            const notificationElement = document.getElementById('notification');
+            const titleElement = document.getElementById('notification-title');
+            const issueListElement = document.getElementById('issue-list');
+            const statusIconContainer = document.getElementById('status-icon-container');
+
+            if (type === 'result') {
+                if (notification) {
+                    titleElement.textContent = notification;
+
+                    // Clear previous icons
+                    statusIconContainer.innerHTML = '';
+
+                    // Check if there are any issues
+                    if (issues.length === 0) {
+                        titleElement.classList.remove('text-red');
+                        titleElement.classList.add('text-green'); // Change to green if no issues
+                        notificationElement.style.borderColor = "#28A745"; // Change border color to green
+                        notificationElement.style.backgroundColor = "rgba(40, 167, 69, 0.1)"; // Change background to light green
+                        
+                        // Add success icon
+                        statusIconContainer.innerHTML = `
+                            <svg width="64px" height="64px" viewBox="-9.6 -9.6 51.20 51.20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" fill="28A745"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.064"></g><g id="SVGRepo_iconCarrier"> <title>checkmark-circle</title> <desc>Created with Sketch Beta.</desc> <defs> </defs> <g id="Page-1" stroke-width="0.00032" fill="none" fill-rule="evenodd" sketch:type="MSPage"> <g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-102.000000, -1141.000000)" fill="#28A745"> <path d="M124.393,1151.43 C124.393,1151.43 117.335,1163.73 117.213,1163.84 C116.81,1164.22 116.177,1164.2 115.8,1163.8 L111.228,1159.58 C110.85,1159.18 110.871,1158.54 111.274,1158.17 C111.677,1157.79 112.31,1157.81 112.688,1158.21 L116.266,1161.51 L122.661,1150.43 C122.937,1149.96 123.548,1149.79 124.027,1150.07 C124.505,1150.34 124.669,1150.96 124.393,1151.43 L124.393,1151.43 Z M118,1141 C109.164,1141 102,1148.16 102,1157 C102,1165.84 109.164,1173 118,1173 C126.836,1173 134,1165.84 134,1157 C134,1148.16 126.836,1141 118,1141 L118,1141 Z" id="checkmark-circle" sketch:type="MSShapeGroup"> </path> </g> </g> </g></svg>
+                        `;
+                    } else {
+                        titleElement.classList.remove('text-green');
+                        titleElement.classList.add('text-red'); // Change to red if there are issues
+                        notificationElement.style.borderColor = "#BC1C21"; // Change border color to red
+                        notificationElement.style.backgroundColor = "rgba(188, 28, 33, 0.1)"; // Change background to light red
+                        
+                        // Add error icon
+                        statusIconContainer.innerHTML = `
+                            <svg width="64px" height="64px" viewBox="-4.8 -4.8 33.60 33.60" fill="none">
+                                <g>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm-1.5-5.009c0-.867.659-1.491 1.491-1.491.85 0 1.509.624 1.509 1.491 0 .867-.659 1.509-1.509 1.509-.832 0-1.491-.642-1.491-1.509zM11.172 6a.5.5 0 0 0-.499.522l.306 7a.5.5 0 0 0 .5.478h1.043a.5.5 0 0 0 .5-.478l.305-7a.5.5 0 0 0-.5-.522h-1.655z" fill="#BC1C21"></path>
+                                </g>
+                            </svg>
+                        `;
+                    }
+
+                    notificationElement.classList.remove('hidden');
+                    issueListElement.innerHTML = ''; // Clear previous issues
+                    issues.forEach(issue => {
+                        const li = document.createElement('li');
+                        li.textContent = issue;
+                        li.classList.add('text-red-light', 'text-base', 'leading-relaxed');
+                        issueListElement.appendChild(li);
+                    });
+                } else {
+                    notificationElement.classList.add('hidden'); // Hide if no issues
+                }
+            }
+        };
+    </script>
+</body>
+</html>
